@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -19,12 +20,14 @@ var (
 	// flagFile    string
 	// flagLineNum bool
 	flagShowHeaders bool
+	flagJson        bool
 )
 
 func init() {
 	// flag.StringVar(&flagFile, "f", "", "File to parse")
 	// flag.BoolVar(&flagLineNum, "n", false, "Shows line numbers")
 	flag.BoolVar(&flagShowHeaders, "headers", false, "Shows line headers")
+	flag.BoolVar(&flagJson, "j", false, "Converts to JSON")
 	// flag.StringVar(&flagFormat, "o", "", "Output Format")
 }
 
@@ -167,6 +170,21 @@ func main() {
 	}
 
 	// Parse and Print
+	if flagJson {
+		var rows = make([]Row, 0, len(c.Rows))
+		for _, row := range c.Rows {
+			rows = append(rows, row)
+		}
+
+		b, err := json.MarshalIndent(rows, "", "\t")
+		if err != nil {
+			perror(err)
+		}
+
+		fmt.Println(string(b))
+		return
+	}
+
 	for i, row := range c.Rows {
 		// Parse lines
 		if err = fm.Parse(i, row); err != nil {
