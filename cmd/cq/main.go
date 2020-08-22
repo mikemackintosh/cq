@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/gosimple/slug"
@@ -145,8 +146,17 @@ func main() {
 	// Only show headers if we set it
 	if flagShowHeaders {
 		fmt.Printf("This spreadsheet has the following columns:\n\n")
-		for id, name := range c.Header.SlugName {
-			fmt.Printf("- %d, %s - Use: '\\(.%s)'\n", id, c.Header.Name[id], name)
+
+		keys := make([]int, len(c.Header.SlugName))
+		i := 0
+		for k := range c.Header.SlugName {
+			keys[i] = k
+			i++
+		}
+		sort.Ints(keys)
+
+		for _, id := range keys {
+			fmt.Printf("- %d, %s - Use: '\\(.%s)'\n", id+1, c.Header.Name[id], c.Header.SlugName[id])
 		}
 		os.Exit(0)
 	}
